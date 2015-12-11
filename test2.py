@@ -77,6 +77,7 @@ else:
 			print('Le fichier ' + f + ' est invalide, il sera ignore.')
 		k=k+1
 
+	print('Enregistrement de la liste des descripteurs. Nb de descripteurs : ' + str(desfinal.shape[0]))
 	cPickle.dump(desfinal, open(SavePath + "/desfinal", 'wb'))
 
 # Preparation de la matrice de descripteurs pour le Kmeans

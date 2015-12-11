@@ -83,6 +83,8 @@ else:
 	print('\nEnregistrement de la liste des descripteurs...')
 	cPickle.dump(desfinal, open(dataPath + "/desfinal", 'wb'))
 
+desfinal = np.float32(desfinal)
+
 # Preparation critere arret kmeans : iterations et epsilon
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

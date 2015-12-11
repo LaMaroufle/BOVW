@@ -19,7 +19,7 @@ else:
 	for i in range(0,len(dir)):
 		desfinal= np.array([])
 		dire= DBpath + '/' + dir[i]
-		print("\ntraitement de "+ str(NbImg) +" images de : " + dire)
+		print("traitement de "+ str(NbImg) +" images de : " + dire)
 
 		# Preparation des variables de barre de chargement
 		k=0
@@ -57,8 +57,7 @@ else:
 							cPickle.dump(des, open(SavePath + "/desc-" + dir[i] + str(k), "wb"))
 
 						except:
-							# Si l'image pose probleme, on l'ignore et on passe a la suivante, augmente le chargement
-							k=k+1
+							# Si l'image pose probleme, on l'ignore et on passe a la suivante.
 							print('le fichier : ' + f + ' est introuvable ou invalide.')
 
 	# Chargement des descripteurs enregistres

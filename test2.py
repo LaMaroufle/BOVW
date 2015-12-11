@@ -5,21 +5,27 @@ import sys
 from path import path
 import cPickle
 
+class err(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
 NbImg=30; # Nombre d'images par folder a prendre en compte
 DBpath="./dataset/paris" # chemin database contenant les dossiers categories
 SavePath="./Desc" # chemin de sauvegarde des descripteurs
 
 # On verifie si la BDD existe
-if os.path.exists('desfinal'):
-	dd=cPickle.load(open("desfinal"))
-	print("descriptors loaded from 'desfinal'")
+if os.path.exists(SavePath + '/desfinal'):
+	dd=cPickle.load(open(SavePath + "desfinal"))
+	print("Descriptors loaded from " + SavePath + "/desfinal")
 # Sinon on la cree
 else:
 	dir=os.listdir(DBpath)
 	for i in range(0,len(dir)):
 		desfinal= np.array([])
 		dire= DBpath + '/' + dir[i]
-		print("\ntraitement de "+ str(NbImg) +" images de : " + dire)
+		print("\nTraitement de "+ str(NbImg) +" images de : " + dire)
 
 		# Preparation des variables de barre de chargement
 		k=0
@@ -47,46 +53,45 @@ else:
 
 							# Incrementation et affichage chargement
 							k=k+1
-							sys.stdout.write('\r' + 'chargement : ' + str(k) + '/' + str(NbImg) + ' Nombre de descripteurs : ' + str(NbDesc) + ' soit ' + str(NbDesc/k) + ' desc par image')
+							sys.stdout.write('\r' + 'Chargementt : ' + str(k) + '/' + str(NbImg) + ' Nombre de descripteurs : ' + str(NbDesc) + ' soit ' + str(NbDesc/k) + ' desc par image')
 							sys.stdout.flush()
-							if k==30:
-								print('\n')
 							# Fin chargement
 
 							# Sauvegarde desc actuels
 							cPickle.dump(des, open(SavePath + "/desc-" + dir[i] + str(k), "wb"))
 
-						except:
-							# Si l'image pose probleme, on l'ignore et on passe a la suivante, augmente le chargement
-							k=k+1
-							print('le fichier : ' + f + ' est introuvable ou invalide.')
+						except err as e:
+							# Si l'image pose probleme, on l'ignore et on passe a la suivante.
+							print('Le fichier : ' + f + ' est introuvable ou invalide.')
 
 	# Chargement des descripteurs enregistres
+	k=1
+	print('\nChargement des descripteurs...')
 	for f in path(SavePath).walkfiles():
-		lol=cPickle.load(open(f,'rb'))
-		desfinal = np.append(desfinal, lol)
+		sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(len(os.listdir(SavePath))))
+		sys.stdout.flush()
 		try:
 			desfinal = np.append(desfinal, cPickle.load(open(f,'rb')))
-		except:
+		except err as e:
 			# Erreur : on recalcule le descripteur
-			print('le fichier ' + f + ' est invalide, il sera ignore.')
+			print('Le fichier ' + f + ' est invalide, il sera ignore.')
+		k=k+1
 
-	# Preparation de la matrice de descripteurs pour le Kmeans
-	desc = np.reshape(desfinal, (len(desfinal)/128, 128))
-	desc = np.float32(desc)
+	cPickle.dump(desfinal, open(SavePath + "/desfinal", 'wb'))
 
-	# Preparation critere arret kmeans : iterations et epsilon
-	criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+# Preparation de la matrice de descripteurs pour le Kmeans
+desc = np.reshape(desfinal, (len(desfinal)/128, 128))
+desc = np.float32(desc)
 
-	# Set flags (Just to avoid line break in the code)
-	flags = cv2.KMEANS_RANDOM_CENTERS
+# Preparation critere arret kmeans : iterations et epsilon
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-	# Apply KMeans
-	print("applying kmeans...")
-	ret,labels,centers = cv2.kmeans(desc,6000,criteria,10,flags)
+# Set flags (Just to avoid line break in the code)
+flags = cv2.KMEANS_RANDOM_CENTERS
 
-	cPickle.dump(desfinal, open("desc" + str(i), "wb"))
-
+# Apply KMeans
+print("\n\nApplying kmeans...")
+ret,labels,centers = cv2.kmeans(desc,6000,criteria,10,flags)
 
 # Debut du SVM
 # svc = svm.SVC(kernel='linear')

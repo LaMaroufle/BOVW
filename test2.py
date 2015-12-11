@@ -25,9 +25,8 @@ else:
 		k=0
 		NbDesc=0
 		# fin de pretaration
-
 		for f in path(dire).walkfiles():
-			while k<NbImg:
+			if k<30:
 				# On verifie que les desc de l'image f ne sont pas deja calcules
 				if os.path.exists(SavePath + '/desc-' + dir[i] + str(k+1)):
 					if k==29:
@@ -64,7 +63,6 @@ else:
 
 	# Chargement des descripteurs enregistres
 	for f in path(SavePath).walkfiles():
-		print(f)
 		lol=cPickle.load(open(f,'rb'))
 		desfinal = np.append(desfinal, lol)
 		try:

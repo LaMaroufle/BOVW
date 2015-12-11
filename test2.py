@@ -97,7 +97,7 @@ if not os.path.exists(dataPath + '/labels') or not os.path.exists(dataPath + '/c
 
 	# Apply KMeans
 	print("\nApplying kmeans...")
-	ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
+	ret,labels,centers = cv2.kmeans(desfinal,500,criteria,10,flags)
 	desfinal=None
 
 	print('Sauvegarde de labels...')

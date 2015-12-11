@@ -17,7 +17,8 @@ SavePath="./Desc" # chemin de sauvegarde des descripteurs
 
 # On verifie si la BDD existe
 if os.path.exists(SavePath + '/desfinal'):
-	dd=cPickle.load(open(SavePath + "desfinal"))
+	print('Chargement de ' + SavePath + "/desfinal")
+	dd=cPickle.load(open(SavePath + "/desfinal"))
 	print("Descriptors loaded from " + SavePath + "/desfinal")
 # Sinon on la cree
 else:
@@ -68,7 +69,7 @@ else:
 	k=1
 	print('\nChargement des descripteurs...')
 	for f in path(SavePath).walkfiles():
-		sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(len(os.listdir(SavePath))))
+		sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(len(os.listdir(SavePath))) + 'Nb de descripteurs : ' + str(desfinal.shape[0]))
 		sys.stdout.flush()
 		try:
 			desfinal = np.append(desfinal, cPickle.load(open(f,'rb')))
@@ -77,7 +78,7 @@ else:
 			print('Le fichier ' + f + ' est invalide, il sera ignore.')
 		k=k+1
 
-	print('\nEnregistrement de la liste des descripteurs. Nb de descripteurs : ' + str(desfinal.shape[0]))
+	print('\nEnregistrement de la liste des descripteurs...')
 	cPickle.dump(desfinal, open(DbPath + "/desfinal", 'wb'))
 
 # Preparation de la matrice de descripteurs pour le Kmeans

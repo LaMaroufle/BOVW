@@ -5,26 +5,20 @@ import sys
 from path import path
 import cPickle
 
-class err(Exception):
-	def __init__(self, value):
-		self.value = value
-	def __str__(self):
-		return repr(self.value)
-
 NbImg=30; # Nombre d'images par folder a prendre en compte
 DbPath="./dataset/paris" # chemin database contenant les dossiers categories
-SavePath="./Desc" # chemin de sauvegarde des descripteurs
+DescPath="./Desc" # chemin de sauvegarde des descripteurs
+DataPath="./Data"
 
 # On verifie si la BDD existe
-if os.path.exists(SavePath + '/desfinal'):
-	print('Chargement de ' + SavePath + "/desfinal")
-	dd=cPickle.load(open(SavePath + "/desfinal"))
-	print("Descriptors loaded from " + SavePath + "/desfinal")
+if os.path.exists(DataPath + 	'/desfinal'):
+	print('Chargement de ' + DataPath + "/desfinal")
+	dd=cPickle.load(open(DataPath + "/desfinal"))
+	print("Descriptors loaded from " + DataPath + "/desfinal")
 # Sinon on la cree
 else:
 	dir=os.listdir(DbPath)
 	for i in range(0,len(dir)):
-		desfinal= np.array([])
 		dire= DbPath + '/' + dir[i]
 		print("\nTraitement de "+ str(NbImg) +" images de : " + dire)
 
@@ -35,7 +29,7 @@ else:
 		for f in path(dire).walkfiles():
 			if k<30:
 				# On verifie que les desc de l'image f ne sont pas deja calcules
-				if os.path.exists(SavePath + '/desc-' + dir[i] + str(k+1)):
+				if os.path.exists(DescPath + '/desc-' + dir[i] + str(k+1)):
 					if k==29:
 						print('Descriptors already computed.')
 						print('Jumping to next folder...')
@@ -54,32 +48,40 @@ else:
 
 							# Incrementation et affichage chargement
 							k=k+1
-							sys.stdout.write('\r' + 'Chargementt : ' + str(k) + '/' + str(NbImg) + ' Nombre de descripteurs : ' + str(NbDesc) + ' soit ' + str(NbDesc/k) + ' desc par image')
+							sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(NbImg) + ' Nombre de descripteurs : ' + str(NbDesc) + ' soit ' + str(NbDesc/k) + ' desc/img')
 							sys.stdout.flush()
 							# Fin chargement
 
 							# Sauvegarde desc actuels
-							cPickle.dump(des, open(SavePath + "/desc-" + dir[i] + str(k), "wb"))
+							cPickle.dump(des, open(DescPath + "/desc-" + dir[i] + str(k), "wb"))
 
-						except err as e:
+						except:
 							# Si l'image pose probleme, on l'ignore et on passe a la suivante.
 							print('Le fichier : ' + f + ' est introuvable ou invalide.')
 
 	# Chargement des descripteurs enregistres
 	k=1
+	desfinal=np.array([])
 	print('\nChargement des descripteurs...')
-	for f in path(SavePath).walkfiles():
-		sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(len(os.listdir(SavePath))) + 'Nb de descripteurs : ' + str(desfinal.shape[0]))
-		sys.stdout.flush()
+	NbImg=len(os.listdir(DescPath))
+	for f in path(DescPath).walkfiles():
 		try:
-			desfinal = np.append(desfinal, cPickle.load(open(f,'rb')))
-		except err as e:
+			Des=cPickle.load(open(f,'rb'))
+			# Concatenation des descripteurs
+			desfinal = np.append(desfinal, Des)
+			desfinal = np.reshape(desfinal, (len(desfinal)/128, 128))
+			NbDes=desfinal.shape[0]
+		except:
 			# Erreur : on recalcule le descripteur
 			print('Le fichier ' + f + ' est invalide, il sera ignore.')
+
+		#Chargement
+		sys.stdout.write('\r' + 'Chargement : ' + str(k) + '/' + str(NbImg) + ' Nombre de descripteurs : ' + str(NbDes) + ' soit ' + str(NbDes/k) + 'desc/img')
+		sys.stdout.flush()
 		k=k+1
 
 	print('\nEnregistrement de la liste des descripteurs...')
-	cPickle.dump(desfinal, open(DbPath + "/desfinal", 'wb'))
+	cPickle.dump(desfinal, open(DataPath + "/desfinal", 'wb'))
 
 # Preparation de la matrice de descripteurs pour le Kmeans
 desc = np.reshape(desfinal, (len(desfinal)/128, 128))
@@ -94,6 +96,12 @@ flags = cv2.KMEANS_RANDOM_CENTERS
 # Apply KMeans
 print("\nApplying kmeans...")
 ret,labels,centers = cv2.kmeans(desc,6000,criteria,10,flags)
+
+print('Sauvegarde de labels...')
+cPickle.dump(desfinal, open(DataPath + "/labels", 'wb'))
+print('Sauvegarde de centers...')
+cPickle.dump(desfinal, open(DataPath + "/centers", 'wb'))
+print('YEAH!')
 
 # Debut du SVM
 # svc = svm.SVC(kernel='linear')

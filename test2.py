@@ -12,9 +12,12 @@ dataPath="./Data"
 
 # On verifie si la BDD existe
 if os.path.exists(dataPath + '/desfinal'):
-	print('Chargement de ' + dataPath + "/desfinal")
-	desfinal=cPickle.load(open(dataPath + "/desfinal"))
-	print("Descriptors loaded from " + dataPath + "/desfinal")
+	if os.path.exists(dataPath + '/labels') and os.path.exists(dataPath + '/centers'):
+		print('Centers et Lables trouves !')
+	else:
+		print('Chargement de ' + dataPath + "/desfinal")
+		desfinal=cPickle.load(open(dataPath + "/desfinal"))
+		print("Descriptors loaded from " + dataPath + "/desfinal")
 # Sinon on la cree
 else:
 	dir=os.listdir(dbPath)
@@ -83,24 +86,31 @@ else:
 	print('\nEnregistrement de la liste des descripteurs...')
 	cPickle.dump(desfinal, open(dataPath + "/desfinal", 'wb'))
 
-desfinal = np.float32(desfinal)
+if not os.path.exists(dataPath + '/labels') or not os.path.exists(dataPath + '/centers'):
+	desfinal = np.float32(desfinal)
 
-# Preparation critere arret kmeans : iterations et epsilon
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+	# Preparation critere arret kmeans : iterations et epsilon
+	criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-# Set flags (Just to avoid line break in the code)
-flags = cv2.KMEANS_RANDOM_CENTERS
+	# Set flags (Just to avoid line break in the code)
+	flags = cv2.KMEANS_RANDOM_CENTERS
 
-# Apply KMeans
-print("\nApplying kmeans...")
-ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
-desfinal=None
+	# Apply KMeans
+	print("\nApplying kmeans...")
+	ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
+	desfinal=None
 
-print('Sauvegarde de labels...')
-cPickle.dump(desfinal, open(dataPath + "/labels", 'wb'))
-print('Sauvegarde de centers...')
-cPickle.dump(desfinal, open(dataPath + "/centers", 'wb'))
-print('YEAH!')
+	print('Sauvegarde de labels...')
+	cPickle.dump(desfinal, open(dataPath + "/labels", 'wb'))
+	print('Sauvegarde de centers...')
+	cPickle.dump(desfinal, open(dataPath + "/centers", 'wb'))
+else:
+	print('Chargement de centers...')
+	centers=cPickle.load(desfinal, open(dataPath + "/centers", 'rb'))
+	print('Chargement de labels...')
+	labels=cPickle.load(desfinal, open(dataPath + "/labels", 'rb'))
+	print('yeah!')
+
 
 # Debut du SVM
 # svc = svm.SVC(kernel='linear')

@@ -5,7 +5,7 @@ import sys
 from path import path
 import cPickle
 
-nbImg=5; # Nombre d'images par folder a prendre en compte
+nbImg=20; # Nombre d'images par folder a prendre en compte
 dbPath="./dataset/paris" # chemin database contenant les dossiers categories
 desPath="./Desc" # chemin de sauvegarde des descripteurs
 dataPath="./Data"
@@ -30,7 +30,7 @@ else:
 			if k<nbImg:
 				# On verifie que les desc de l'image f ne sont pas deja calcules
 				if os.path.exists(desPath + '/desc-' + dir[i] + str(k+1)):
-					if k==29:
+					if k==nbImg-1:
 						print('Descriptors already computed.')
 						print('Jumping to next folder...')
 					k=k+1
@@ -93,7 +93,7 @@ flags = cv2.KMEANS_RANDOM_CENTERS
 
 # Apply KMeans
 print("\nApplying kmeans...")
-ret,labels,centers = cv2.kmeans(desfinal,6000,criteria,10,flags)
+ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
 desfinal=None
 
 print('Sauvegarde de labels...')

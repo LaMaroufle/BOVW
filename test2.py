@@ -91,7 +91,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 flags = cv2.KMEANS_RANDOM_CENTERS
 
 # Apply KMeans
-print("\n\nApplying kmeans...")
+print("\nApplying kmeans...")
 ret,labels,centers = cv2.kmeans(desc,6000,criteria,10,flags)
 
 # Debut du SVM

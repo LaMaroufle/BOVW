@@ -106,9 +106,9 @@ if not os.path.exists(dataPath + '/labels') or not os.path.exists(dataPath + '/c
 	cPickle.dump(desfinal, open(dataPath + "/centers", 'wb'))
 else:
 	print('Chargement de centers...')
-	centers=cPickle.load(desfinal, open(dataPath + "/centers", 'rb'))
+	centers=cPickle.load(open(dataPath + "/centers", 'rb'))
 	print('Chargement de labels...')
-	labels=cPickle.load(desfinal, open(dataPath + "/labels", 'rb'))
+	labels=cPickle.load(open(dataPath + "/labels", 'rb'))
 	print('yeah!')
 
 

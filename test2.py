@@ -24,7 +24,7 @@ else:
 
 		# On verifie l'existence des desc pour cette classe
 		if os.path.exists('desc' + str(i)):
-			print("descriptors already computed in 'file" + str(i) + "'")
+			print("descriptors already computed in 'file" + str(i) + "'.")
 			print("computing next folder...")
 
 		# S'ils n'existent pas deja, on les calcule
@@ -41,28 +41,26 @@ else:
 
 						# Incrementation et affichage chargement
 						k=k+1
-						sys.stdout.write('\r' + 'chargement : ' + str(k*100/tai) + '%')
+						sys.stdout.write('\r' + 'chargement : ' + str(k) + '/' + str(tai) + ' Nombre de descripteurs : ' + str(desfinal.shape[0]) + ' soit ' + str(desfinal.shape[0]/k) + ' desc par image')
 						sys.stdout.flush()
 						# Fin chargement
 
 					except:
 						# Si l'image pose probleme, on l'ignore et on apsse a la suivante, augmente le chargement
 						k=k+1
-						print('le fichier : ' + f + 'est introuvable ou invalide')
+						print('le fichier : ' + f + 'est introuvable ou invalide.')
 
 			# On enregistre les desc de la classe actuelle
+			print('\nEnregistrement des descripteurs...')
 			cPickle.dump(desfinal, open("desc" + str(i), "wb"))
+			print('Descripteurs enregistres dans "desc' + str(i) + '".')
 
 	# Chargement des descripteurs enregistres
 	for i in range(0,len(dir)):
 		desfinal = np.append(desfinal, cPickle.load(open("desc" + str(i))))
 
-	# Concatenation des descripteurs
-	descriptors = np.array([])
-	descriptors = np.append(descriptors, desfinal)
-
 	# Preparation de la matrice de descripteurs pour le Kmeans
-	desc = np.reshape(descriptors, (len(descriptors)/128, 128))
+	desc = np.reshape(desfinal, (len(desfinal)/128, 128))
 	desc = np.float32(desc)
 
 	# Preparation critere arret kmeans : iterations et epsilon

@@ -12,7 +12,7 @@ class err(Exception):
 		return repr(self.value)
 
 NbImg=30; # Nombre d'images par folder a prendre en compte
-DBpath="./dataset/paris" # chemin database contenant les dossiers categories
+DbPath="./dataset/paris" # chemin database contenant les dossiers categories
 SavePath="./Desc" # chemin de sauvegarde des descripteurs
 
 # On verifie si la BDD existe
@@ -21,10 +21,10 @@ if os.path.exists(SavePath + '/desfinal'):
 	print("Descriptors loaded from " + SavePath + "/desfinal")
 # Sinon on la cree
 else:
-	dir=os.listdir(DBpath)
+	dir=os.listdir(DbPath)
 	for i in range(0,len(dir)):
 		desfinal= np.array([])
-		dire= DBpath + '/' + dir[i]
+		dire= DbPath + '/' + dir[i]
 		print("\nTraitement de "+ str(NbImg) +" images de : " + dire)
 
 		# Preparation des variables de barre de chargement
@@ -77,8 +77,8 @@ else:
 			print('Le fichier ' + f + ' est invalide, il sera ignore.')
 		k=k+1
 
-	print('Enregistrement de la liste des descripteurs. Nb de descripteurs : ' + str(desfinal.shape[0]))
-	cPickle.dump(desfinal, open(SavePath + "/desfinal", 'wb'))
+	print('\nEnregistrement de la liste des descripteurs. Nb de descripteurs : ' + str(desfinal.shape[0]))
+	cPickle.dump(desfinal, open(DbPath + "/desfinal", 'wb'))
 
 # Preparation de la matrice de descripteurs pour le Kmeans
 desc = np.reshape(desfinal, (len(desfinal)/128, 128))

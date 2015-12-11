@@ -94,6 +94,7 @@ flags = cv2.KMEANS_RANDOM_CENTERS
 # Apply KMeans
 print("\nApplying kmeans...")
 ret,labels,centers = cv2.kmeans(desfinal,6000,criteria,10,flags)
+desfinal=None
 
 print('Sauvegarde de labels...')
 cPickle.dump(desfinal, open(dataPath + "/labels", 'wb'))

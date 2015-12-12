@@ -5,7 +5,7 @@ import sys
 from path import path
 import cPickle
 
-nbImg=20; # Nombre d'images par folder a prendre en compte
+nbImg=5; # Nombre d'images par folder a prendre en compte
 dbPath="./dataset/paris" # chemin database contenant les dossiers categories
 desPath="./Desc" # chemin de sauvegarde des descripteurs
 dataPath="./Data"
@@ -97,22 +97,22 @@ if not os.path.exists(dataPath + '/labels') or not os.path.exists(dataPath + '/c
 
 	# Apply KMeans
 	print("\nApplying kmeans...")
-	ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
+	ret,labels,centers = cv2.kmeans(desfinal,50,criteria,10,flags)
 	desfinal=None
 
 	print('Sauvegarde de labels...')
-	cPickle.dump(desfinal, open(dataPath + "/labels", 'wb'))
+	cPickle.dump(labels, open(dataPath + "/labels", 'wb'))
 	print('Sauvegarde de centers...')
-	cPickle.dump(desfinal, open(dataPath + "/centers", 'wb'))
+	cPickle.dump(centers, open(dataPath + "/centers", 'wb'))
 else:
 	print('Chargement de centers...')
 	centers=cPickle.load(open(dataPath + "/centers", 'rb'))
 	print('Chargement de labels...')
 	labels=cPickle.load(open(dataPath + "/labels", 'rb'))
 	print('yeah!')
-	print(centers.shape)
-	print(labels.shape)
 
+print(centers)
+print(labels)
 
 # Debut du SVM
 # svc = svm.SVC(kernel='linear')

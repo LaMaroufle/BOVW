@@ -5,10 +5,16 @@ import sys
 from path import path
 import cPickle
 
+def distance (a, b): #Definition distance L1 entre 2 arrays de meme longueur
+	dist = sum(abs(a-b))
+	return dist
+
 nbImg=20; # Nombre d'images par folder a prendre en compte
-dbPath="./dataset/paris" # chemin database contenant les dossiers categories
+dbPath="./dataset/Learn" # chemin database contenant les dossiers categories
 desPath="./Desc" # chemin de sauvegarde des descripteurs
 dataPath="./Data"
+histPath="./Hist"
+nbClasse=5000
 
 # On verifie si la BDD existe
 if os.path.exists(dataPath + '/desfinal'):
@@ -97,7 +103,7 @@ if not os.path.exists(dataPath + '/labels') or not os.path.exists(dataPath + '/c
 
 	# Apply KMeans
 	print("\nApplying kmeans...")
-	ret,labels,centers = cv2.kmeans(desfinal,5000,criteria,10,flags)
+	ret,labels,centers = cv2.kmeans(desfinal,nbClasse,criteria,10,flags)
 	desfinal=None
 
 	print('Sauvegarde de labels...')
@@ -109,10 +115,42 @@ else:
 	centers=cPickle.load(open(dataPath + "/centers", 'rb'))
 	print('Chargement de labels...')
 	labels=cPickle.load(open(dataPath + "/labels", 'rb'))
-	print('yeah!')
 
-print(centers)
-print(labels)
+dir=os.listdir(dbPath)
+for i in range(0,len(dir)):
+	dire= dbPath + '/' + dir[i]
+	print("\nTraitement de "+ dire)
+
+	k=0
+	nb=0
+
+	for f in path(dire).walkfiles():
+		if k<nbImg:
+			if os.path.exists(histPath + '/hist-' + dir[i] + str(k+1)):				#Test existence des histogrammes
+				if k==nbImg-1:
+					print('Histograms already computed.')
+					print('Jumping to next folder...')
+				k=k+1
+			else:																		#Creation si necessaire de l'histogramme correspondant e l'image en cours
+				descriptors=cPickle.load(open(desPath + '/desc-' + dir[i] + str(k+1))) #Chargement des descripteurs de cette image
+				histo = np.zeros(nbClasse)
+				charge=0
+				for l in descriptors:													#Calcul pour chaque descripteur du centre le plus proche (toute la boucle for)
+					min = distance(l,centers[0])										#et ajout de +1 dans histo a l'indice correspondant a ce centre
+					indice = 0
+					for j in range(nbClasse):
+						buf=distance(l,centers[j])
+						if (buf<min):
+							min = buf
+							indice = j
+					histo[indice] += 1
+					# Incrementation et affichage chargement
+					charge += 1
+					sys.stdout.write('\r' + 'Chargement : ' + str(charge*100/nbClasse) + '%' + ' de ' + str(k+1) + '/' + str(nbImg))
+					sys.stdout.flush()
+					# Fin chargement
+				k=k+1
+				cPickle.dump(histo, open(histPath + "/hist-" + dir[i] + str(k), "wb"))	#Sauvegarde de l'histogramme en cours
 
 # Debut du SVM
 # svc = svm.SVC(kernel='linear')
